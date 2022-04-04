@@ -1,0 +1,31 @@
+FROM ubuntu:18.04
+
+# Update system and install requirements
+RUN apt-get update \
+    && apt-get -y upgrade \
+    && apt-get -y install apt-transport-https curl gnupg \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Icinga2
+RUN curl -s https://packages.icinga.com/icinga.key | apt-key add - \
+    && echo "deb https://packages.icinga.com/ubuntu icinga-bionic main"  > /etc/apt/sources.list.d/icinga.list \
+    && apt-get update \
+    && apt-get -y install \
+        icinga2 \
+        nagios-plugins \
+        monitoring-plugins \
+        nagios-nrpe-plugin \
+        nagios-plugins-contrib \
+        nagios-snmp-plugins \
+        libmonitoring-plugin-perl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* 
+
+VOLUME ["/etc/icinga2", "/usr/lib/nagios/plugins"]
+
+# icinga2 daemon -C
+
+EXPOSE 5665
+
+CMD ["icinga2", "daemon"]
